@@ -1,5 +1,6 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+import * as THREE from "three";
 import Planet from "./Planet";
 
 const SolarSystem = () => {
@@ -16,8 +17,12 @@ const SolarSystem = () => {
       {/* Sun */}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[5, 32, 32]} />
-        <meshStandardMaterial emissive="#ffff00" emissiveIntensity={2} />
-        <pointLight intensity={1} distance={100} />
+        <meshStandardMaterial
+          emissive="#FDB813"
+          emissiveIntensity={2}
+          color="#FDB813"
+        />
+        <pointLight intensity={5} distance={200} decay={2} />
       </mesh>
 
       {/* Planets */}
@@ -27,22 +32,32 @@ const SolarSystem = () => {
         distance={10}
         color="#787878"
         orbitSpeed={0.004}
+        showOrbit={true}
       />
       <Planet
         name="Venus"
-        radius={1.5}
-        distance={15}
+        radius={1.8}
+        distance={18}
         color="#e39e1c"
         orbitSpeed={0.003}
+        showOrbit={true}
       />
       <Planet
         name="Earth"
         radius={2}
-        distance={20}
+        distance={26}
         color="#2b82c9"
         orbitSpeed={0.002}
+        showOrbit={true}
       />
-      {/* Add more planets */}
+      <Planet
+        name="Mars"
+        radius={1.5}
+        distance={34}
+        color="#c1440e"
+        orbitSpeed={0.0015}
+        showOrbit={true}
+      />
     </group>
   );
 };
