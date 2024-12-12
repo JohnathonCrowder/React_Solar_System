@@ -1,4 +1,3 @@
-// SolarSystem.tsx
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import Planet from "./Planet";
@@ -16,7 +15,7 @@ const SolarSystem = () => {
 
     if (sunGroupRef.current) {
       // Rotate the volumetric light rays
-      sunGroupRef.current.children.forEach((child, i) => {
+      sunGroupRef.current.children.forEach((child) => {
         if (child.type === "Group") {
           child.rotation.z += 0.0003;
           child.rotation.x += 0.0002;
@@ -46,7 +45,7 @@ const SolarSystem = () => {
           <pointLight intensity={2} distance={200} decay={2} />
         </mesh>
 
-        {/* Inner glow layer */}
+        {/* Sun glow layers */}
         <mesh scale={[1.2, 1.2, 1.2]}>
           <sphereGeometry args={[8, 64, 64]} />
           <meshBasicMaterial
@@ -56,8 +55,6 @@ const SolarSystem = () => {
             side={THREE.BackSide}
           />
         </mesh>
-
-        {/* Middle glow layer */}
         <mesh scale={[1.4, 1.4, 1.4]}>
           <sphereGeometry args={[8, 64, 64]} />
           <meshBasicMaterial
@@ -67,8 +64,6 @@ const SolarSystem = () => {
             side={THREE.BackSide}
           />
         </mesh>
-
-        {/* Outer glow layer */}
         <mesh scale={[1.6, 1.6, 1.6]}>
           <sphereGeometry args={[8, 64, 64]} />
           <meshBasicMaterial
@@ -78,8 +73,6 @@ const SolarSystem = () => {
             side={THREE.BackSide}
           />
         </mesh>
-
-        {/* Corona effect */}
         <mesh scale={[2, 2, 2]}>
           <sphereGeometry args={[8, 64, 64]} />
           <meshBasicMaterial
@@ -114,7 +107,7 @@ const SolarSystem = () => {
           ))}
         </group>
 
-        {/* Light sources for better scene illumination */}
+        {/* Light sources */}
         <pointLight
           position={[0, 0, 0]}
           intensity={2}
@@ -130,14 +123,15 @@ const SolarSystem = () => {
         />
       </group>
 
-      {/* Planets */}
+      {/* Planets with realistic orbital parameters */}
       <Planet
         name="Mercury"
         radius={1.5}
         distance={20}
         color="#787878"
         orbitSpeed={0.004}
-        orbitTilt={7}
+        orbitInclination={0}
+        orbitRotation={48.331}
         rotationSpeed={0.01}
         atmosphereColor="#787878"
         initialAngle={0}
@@ -149,7 +143,8 @@ const SolarSystem = () => {
         distance={30}
         color="#e39e1c"
         orbitSpeed={0.0035}
-        orbitTilt={3.4}
+        orbitInclination={0}
+        orbitRotation={76.68}
         rotationSpeed={0.008}
         atmosphereColor="#e39e1c"
         initialAngle={Math.PI * 0.5}
@@ -161,7 +156,8 @@ const SolarSystem = () => {
         distance={45}
         color="#2b82c9"
         orbitSpeed={0.003}
-        orbitTilt={0}
+        orbitInclination={0}
+        orbitRotation={0}
         rotationSpeed={0.01}
         atmosphereColor="#6ab7ff"
         initialAngle={Math.PI}
@@ -173,7 +169,8 @@ const SolarSystem = () => {
         distance={60}
         color="#c1440e"
         orbitSpeed={0.0024}
-        orbitTilt={1.9}
+        orbitInclination={0}
+        orbitRotation={49.558}
         rotationSpeed={0.009}
         atmosphereColor="#c1440e"
         initialAngle={Math.PI * 1.5}
@@ -185,7 +182,8 @@ const SolarSystem = () => {
         distance={85}
         color="#e3ddd1"
         orbitSpeed={0.0013}
-        orbitTilt={1.3}
+        orbitInclination={0}
+        orbitRotation={100.464}
         rotationSpeed={0.004}
         atmosphereColor="#e3ddd1"
         initialAngle={Math.PI * 0.3}
@@ -197,7 +195,8 @@ const SolarSystem = () => {
         distance={130}
         color="#ead6b8"
         orbitSpeed={0.0009}
-        orbitTilt={2.5}
+        orbitInclination={0}
+        orbitRotation={113.665}
         rotationSpeed={0.0038}
         hasRings={true}
         atmosphereColor="#ead6b8"
@@ -210,7 +209,8 @@ const SolarSystem = () => {
         distance={175}
         color="#d1e7e7"
         orbitSpeed={0.0006}
-        orbitTilt={0.8}
+        orbitInclination={0}
+        orbitRotation={74.006}
         rotationSpeed={0.003}
         atmosphereColor="#d1e7e7"
         initialAngle={Math.PI * 1.2}
@@ -222,7 +222,8 @@ const SolarSystem = () => {
         distance={200}
         color="#445bad"
         orbitSpeed={0.0005}
-        orbitTilt={1.8}
+        orbitInclination={0}
+        orbitRotation={131.783}
         rotationSpeed={0.0032}
         atmosphereColor="#445bad"
         initialAngle={Math.PI * 1.7}
@@ -234,24 +235,21 @@ const SolarSystem = () => {
         distance={215}
         color="#968570"
         orbitSpeed={0.0004}
-        orbitTilt={17.2}
+        orbitInclination={0}
+        orbitRotation={110.299}
         rotationSpeed={0.0022}
         atmosphereColor="#968570"
         initialAngle={Math.PI * 0.1}
       />
 
-      {/* Ambient light for overall scene illumination */}
+      {/* Scene lighting */}
       <ambientLight intensity={0.1} />
-
-      {/* Additional scene lighting */}
       <pointLight
         position={[100, 100, 100]}
         intensity={0.5}
         distance={300}
         decay={2}
       />
-
-      {/* Background stars lighting */}
       <pointLight
         position={[-100, -100, -100]}
         intensity={0.2}

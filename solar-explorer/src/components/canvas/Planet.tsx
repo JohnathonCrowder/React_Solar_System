@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useStore } from "../../store/store";
 import { Line } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,7 +10,8 @@ interface PlanetProps {
   distance: number;
   color: string;
   orbitSpeed: number;
-  orbitTilt: number;
+  orbitInclination: number;
+  orbitRotation: number;
   rotationSpeed: number;
   atmosphereColor: string;
   hasRings?: boolean;
@@ -23,7 +24,8 @@ const Planet = ({
   distance,
   color,
   orbitSpeed,
-  orbitTilt,
+  orbitInclination,
+  orbitRotation,
   rotationSpeed,
   atmosphereColor,
   hasRings = false,
@@ -33,40 +35,58 @@ const Planet = ({
   const ringsRef = useRef<THREE.Group>(null);
   const { setSelectedPlanet } = useStore();
 
-  // Create orbit path
-  const points = [];
-  for (let i = 0; i <= 64; i++) {
-    const angle = (i / 64) * 2 * Math.PI;
-    points.push(
-      new THREE.Vector3(
-        Math.cos(angle) * distance,
-        0,
-        Math.sin(angle) * distance
-      )
-    );
-  }
-  points.push(points[0]);
+  // Exaggerate inclination for better visualization
+  const exaggeratedInclination = orbitInclination * 3;
+
+  // Create realistic orbit path
+  const points = useMemo(() => {
+    const tempPoints = [];
+    const inclinationRad = exaggeratedInclination * (Math.PI / 180);
+    const rotationRad = orbitRotation * (Math.PI / 180);
+
+    for (let i = 0; i <= 64; i++) {
+      const angle = (i / 64) * 2 * Math.PI;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance * Math.sin(inclinationRad);
+      const z = Math.sin(angle) * distance * Math.cos(inclinationRad);
+
+      const position = new THREE.Vector3(x, y, z);
+      const rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.makeRotationY(rotationRad);
+      position.applyMatrix4(rotationMatrix);
+
+      tempPoints.push(position);
+    }
+    tempPoints.push(tempPoints[0]); // Close the loop
+    return tempPoints;
+  }, [distance, exaggeratedInclination, orbitRotation]);
 
   useFrame((state) => {
     if (meshRef.current) {
-      // Planet orbit
       const time = state.clock.getElapsedTime();
       const angle = initialAngle + time * orbitSpeed;
+      const inclinationRad = exaggeratedInclination * (Math.PI / 180);
+      const rotationRad = orbitRotation * (Math.PI / 180);
+
+      // Calculate position on inclined orbit
       const x = Math.cos(angle) * distance;
-      const z = Math.sin(angle) * distance;
+      const y = Math.sin(angle) * distance * Math.sin(inclinationRad);
+      const z = Math.sin(angle) * distance * Math.cos(inclinationRad);
+
+      const position = new THREE.Vector3(x, y, z);
+      const rotationMatrix = new THREE.Matrix4();
+      rotationMatrix.makeRotationY(rotationRad);
+      position.applyMatrix4(rotationMatrix);
 
       // Update planet position
-      meshRef.current.position.x = x;
-      meshRef.current.position.z = z;
+      meshRef.current.position.copy(position);
 
       // Planet rotation
       meshRef.current.rotation.y += rotationSpeed;
 
-      // Update rings position and rotation
+      // Update rings position
       if (ringsRef.current) {
-        ringsRef.current.position.x = x;
-        ringsRef.current.position.z = z;
-        // Keep rings parallel to the orbital plane
+        ringsRef.current.position.copy(position);
         ringsRef.current.rotation.x = Math.PI / 2;
       }
     }
@@ -74,7 +94,7 @@ const Planet = ({
 
   return (
     <>
-      {/* Orbit Path */}
+      {/* Realistic Orbit Path */}
       <Line
         points={points}
         color="white"
@@ -83,36 +103,31 @@ const Planet = ({
         lineWidth={1}
       />
 
-      {/* Planet with orbit tilt */}
-      <group rotation={[orbitTilt * (Math.PI / 180), 0, 0]}>
-        <mesh
-          ref={meshRef}
-          onClick={() => setSelectedPlanet(name)}
-          onPointerEnter={() => (document.body.style.cursor = "pointer")}
-          onPointerLeave={() => (document.body.style.cursor = "default")}
-        >
+      {/* Planet */}
+      <mesh
+        ref={meshRef}
+        onClick={() => setSelectedPlanet(name)}
+        onPointerEnter={() => (document.body.style.cursor = "pointer")}
+        onPointerLeave={() => (document.body.style.cursor = "default")}
+      >
+        <sphereGeometry args={[radius, 32, 32]} />
+        <meshStandardMaterial color={color} metalness={0.4} roughness={0.7} />
+
+        {/* Planet Atmosphere */}
+        <mesh scale={[1.05, 1.05, 1.05]}>
           <sphereGeometry args={[radius, 32, 32]} />
-          <meshStandardMaterial color={color} metalness={0.4} roughness={0.7} />
-
-          {/* Planet Atmosphere */}
-          <mesh scale={[1.05, 1.05, 1.05]}>
-            <sphereGeometry args={[radius, 32, 32]} />
-            <meshPhongMaterial
-              color={atmosphereColor}
-              transparent
-              opacity={0.2}
-              side={THREE.BackSide}
-            />
-          </mesh>
+          <meshPhongMaterial
+            color={atmosphereColor}
+            transparent
+            opacity={0.2}
+            side={THREE.BackSide}
+          />
         </mesh>
-      </group>
+      </mesh>
 
-      {/* Saturn's Rings System - Separate from planet tilt */}
+      {/* Saturn's Rings System */}
       {hasRings && (
-        <group
-          ref={ringsRef}
-          rotation={[Math.PI / 2, 0, Math.PI / 6]} // Adjusted ring tilt
-        >
+        <group ref={ringsRef} rotation={[Math.PI / 2, 0, Math.PI / 6]}>
           {/* Main Ring (B Ring) */}
           <mesh>
             <ringGeometry args={[radius * 1.4, radius * 2.0, 128]} />
