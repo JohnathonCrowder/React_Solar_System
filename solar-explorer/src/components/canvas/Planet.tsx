@@ -14,6 +14,7 @@ interface PlanetProps {
   rotationSpeed: number;
   atmosphereColor: string;
   hasRings?: boolean;
+  initialAngle: number;
 }
 
 const Planet = ({
@@ -26,6 +27,7 @@ const Planet = ({
   rotationSpeed,
   atmosphereColor,
   hasRings = false,
+  initialAngle,
 }: PlanetProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const ringsRef = useRef<THREE.Group>(null);
@@ -49,8 +51,9 @@ const Planet = ({
     if (meshRef.current) {
       // Planet orbit
       const time = state.clock.getElapsedTime();
-      const x = Math.cos(time * orbitSpeed) * distance;
-      const z = Math.sin(time * orbitSpeed) * distance;
+      const angle = initialAngle + time * orbitSpeed;
+      const x = Math.cos(angle) * distance;
+      const z = Math.sin(angle) * distance;
 
       // Update planet position
       meshRef.current.position.x = x;

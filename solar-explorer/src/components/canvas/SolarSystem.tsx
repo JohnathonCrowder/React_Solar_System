@@ -1,3 +1,4 @@
+// SolarSystem.tsx
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import Planet from "./Planet";
@@ -139,6 +140,7 @@ const SolarSystem = () => {
         orbitTilt={7}
         rotationSpeed={0.01}
         atmosphereColor="#787878"
+        initialAngle={0}
       />
 
       <Planet
@@ -150,6 +152,7 @@ const SolarSystem = () => {
         orbitTilt={3.4}
         rotationSpeed={0.008}
         atmosphereColor="#e39e1c"
+        initialAngle={Math.PI * 0.5}
       />
 
       <Planet
@@ -161,6 +164,7 @@ const SolarSystem = () => {
         orbitTilt={0}
         rotationSpeed={0.01}
         atmosphereColor="#6ab7ff"
+        initialAngle={Math.PI}
       />
 
       <Planet
@@ -172,40 +176,44 @@ const SolarSystem = () => {
         orbitTilt={1.9}
         rotationSpeed={0.009}
         atmosphereColor="#c1440e"
+        initialAngle={Math.PI * 1.5}
       />
 
       <Planet
         name="Jupiter"
         radius={12}
-        distance={85} // Adjusted
+        distance={85}
         color="#e3ddd1"
         orbitSpeed={0.0013}
         orbitTilt={1.3}
         rotationSpeed={0.004}
         atmosphereColor="#e3ddd1"
+        initialAngle={Math.PI * 0.3}
       />
 
       <Planet
         name="Saturn"
         radius={10}
-        distance={130} // Increased distance
+        distance={130}
         color="#ead6b8"
         orbitSpeed={0.0009}
         orbitTilt={2.5}
         rotationSpeed={0.0038}
         hasRings={true}
         atmosphereColor="#ead6b8"
+        initialAngle={Math.PI * 0.8}
       />
 
       <Planet
         name="Uranus"
         radius={7}
-        distance={175} // Adjusted
+        distance={175}
         color="#d1e7e7"
         orbitSpeed={0.0006}
         orbitTilt={0.8}
         rotationSpeed={0.003}
         atmosphereColor="#d1e7e7"
+        initialAngle={Math.PI * 1.2}
       />
 
       <Planet
@@ -217,6 +225,7 @@ const SolarSystem = () => {
         orbitTilt={1.8}
         rotationSpeed={0.0032}
         atmosphereColor="#445bad"
+        initialAngle={Math.PI * 1.7}
       />
 
       <Planet
@@ -228,6 +237,7 @@ const SolarSystem = () => {
         orbitTilt={17.2}
         rotationSpeed={0.0022}
         atmosphereColor="#968570"
+        initialAngle={Math.PI * 0.1}
       />
 
       {/* Ambient light for overall scene illumination */}
