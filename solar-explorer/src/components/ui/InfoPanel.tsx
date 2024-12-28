@@ -125,7 +125,11 @@ const blackHoleInfo = {
 };
 
 const InfoPanel = () => {
-  const { selectedPlanet, showBlackHole } = useStore();
+  const { selectedPlanet, showBlackHole, setSelectedPlanet } = useStore();
+
+  const handleClose = () => {
+    setSelectedPlanet(null);
+  };
 
   const shouldShowInfo = selectedPlanet || showBlackHole;
   const title = showBlackHole ? "Black Hole" : selectedPlanet;
@@ -147,7 +151,7 @@ const InfoPanel = () => {
             <h2 className="text-3xl font-bold mb-4 text-white">{title}</h2>
             <button
               className="text-white/60 hover:text-white"
-              onClick={() => useStore.getState().setSelectedPlanet(null)}
+              onClick={handleClose}
             >
               <svg
                 className="w-6 h-6"
@@ -179,7 +183,7 @@ const InfoPanel = () => {
           <div className="mt-6 text-center">
             <button
               className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm"
-              onClick={() => useStore.getState().setSelectedPlanet(null)}
+              onClick={handleClose}
             >
               Close
             </button>
