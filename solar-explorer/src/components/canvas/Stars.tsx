@@ -19,7 +19,7 @@ const Stars = () => {
     return [positions, sizes];
   }, []);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (starsRef.current) {
       starsRef.current.rotation.x += 0.0001;
       starsRef.current.rotation.y += 0.0001;

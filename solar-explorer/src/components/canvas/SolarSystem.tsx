@@ -8,7 +8,7 @@ const SolarSystem = () => {
   const groupRef = useRef<THREE.Group>(null);
   const sunGroupRef = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current) {
       groupRef.current.rotation.y += 0.0001;
     }

@@ -1,6 +1,6 @@
 // src/App.tsx
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars as DreiStars } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
 import SolarSystem from "./components/canvas/SolarSystem";
 import Stars from "./components/canvas/Stars";
