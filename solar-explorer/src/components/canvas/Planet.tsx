@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useStore } from "../../store/store";
 import { Line } from "@react-three/drei";
 import * as THREE from "three";
+import { useSpring, animated } from "@react-spring/three";
 
 interface PlanetProps {
   name: string;
@@ -16,6 +17,7 @@ interface PlanetProps {
   atmosphereColor: string;
   hasRings?: boolean;
   initialAngle: number;
+  isSelected?: boolean;
 }
 
 const Planet = ({
@@ -30,10 +32,19 @@ const Planet = ({
   atmosphereColor,
   hasRings = false,
   initialAngle,
+  isSelected = false,
 }: PlanetProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const ringsRef = useRef<THREE.Group>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
   const { setSelectedPlanet } = useStore();
+
+  // Glow animation spring
+  const glowSpring = useSpring({
+    opacity: isSelected ? 0.3 : 0,
+    scale: isSelected ? 1.2 : 1.15,
+    config: { tension: 120, friction: 14 },
+  });
 
   // Exaggerate inclination for better visualization
   const exaggeratedInclination = orbitInclination * 3;
@@ -61,9 +72,9 @@ const Planet = ({
     return tempPoints;
   }, [distance, exaggeratedInclination, orbitRotation]);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (meshRef.current) {
-      const time = state.clock.getElapsedTime();
+      const time = Date.now() * 0.001; // Convert to seconds
       const angle = initialAngle + time * orbitSpeed;
       const inclinationRad = exaggeratedInclination * (Math.PI / 180);
       const rotationRad = orbitRotation * (Math.PI / 180);
@@ -84,10 +95,13 @@ const Planet = ({
       // Planet rotation
       meshRef.current.rotation.y += rotationSpeed;
 
-      // Update rings position
+      // Update rings and glow position
       if (ringsRef.current) {
         ringsRef.current.position.copy(position);
         ringsRef.current.rotation.x = Math.PI / 2;
+      }
+      if (glowRef.current) {
+        glowRef.current.position.copy(position);
       }
     }
   });
@@ -103,82 +117,98 @@ const Planet = ({
         lineWidth={1}
       />
 
-      {/* Planet */}
-      <mesh
-        ref={meshRef}
-        onClick={() => setSelectedPlanet(name)}
-        onPointerEnter={() => (document.body.style.cursor = "pointer")}
-        onPointerLeave={() => (document.body.style.cursor = "default")}
-      >
-        <sphereGeometry args={[radius, 32, 32]} />
-        <meshStandardMaterial color={color} metalness={0.4} roughness={0.7} />
-
-        {/* Planet Atmosphere */}
-        <mesh scale={[1.05, 1.05, 1.05]}>
+      <group>
+        {/* Glow Effect */}
+        <animated.mesh
+          ref={glowRef}
+          scale={glowSpring.scale.to((s) => [s, s, s])}
+        >
           <sphereGeometry args={[radius, 32, 32]} />
-          <meshPhongMaterial
+          <animated.meshBasicMaterial
             color={atmosphereColor}
             transparent
-            opacity={0.2}
+            opacity={glowSpring.opacity}
             side={THREE.BackSide}
           />
+        </animated.mesh>
+
+        {/* Planet */}
+        <mesh
+          ref={meshRef}
+          onClick={() => setSelectedPlanet(name)}
+          onPointerEnter={() => (document.body.style.cursor = "pointer")}
+          onPointerLeave={() => (document.body.style.cursor = "default")}
+        >
+          <sphereGeometry args={[radius, 32, 32]} />
+          <meshStandardMaterial color={color} metalness={0.4} roughness={0.7} />
+
+          {/* Planet Atmosphere */}
+          <mesh scale={[1.05, 1.05, 1.05]}>
+            <sphereGeometry args={[radius, 32, 32]} />
+            <meshPhongMaterial
+              color={atmosphereColor}
+              transparent
+              opacity={0.2}
+              side={THREE.BackSide}
+            />
+          </mesh>
         </mesh>
-      </mesh>
 
-      {/* Saturn's Rings System */}
-      {hasRings && (
-        <group ref={ringsRef} rotation={[Math.PI / 2, 0, Math.PI / 6]}>
-          {/* Main Ring (B Ring) */}
-          <mesh>
-            <ringGeometry args={[radius * 1.4, radius * 2.0, 128]} />
-            <meshStandardMaterial
-              color="#c7a67c"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.8}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
+        {/* Saturn's Rings System */}
+        {hasRings && (
+          <group ref={ringsRef} rotation={[Math.PI / 2, 0, Math.PI / 6]}>
+            {/* Main Ring (B Ring) */}
+            <mesh>
+              <ringGeometry args={[radius * 1.4, radius * 2.0, 128]} />
+              <meshStandardMaterial
+                color="#c7a67c"
+                side={THREE.DoubleSide}
+                transparent
+                opacity={0.8}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
 
-          {/* Inner Ring (C Ring) */}
-          <mesh>
-            <ringGeometry args={[radius * 1.2, radius * 1.4, 128]} />
-            <meshStandardMaterial
-              color="#ad8c5e"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.4}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
+            {/* Inner Ring (C Ring) */}
+            <mesh>
+              <ringGeometry args={[radius * 1.2, radius * 1.4, 128]} />
+              <meshStandardMaterial
+                color="#ad8c5e"
+                side={THREE.DoubleSide}
+                transparent
+                opacity={0.4}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
 
-          {/* Outer Ring (A Ring) */}
-          <mesh>
-            <ringGeometry args={[radius * 2.0, radius * 2.3, 128]} />
-            <meshStandardMaterial
-              color="#d4b57d"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.6}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
+            {/* Outer Ring (A Ring) */}
+            <mesh>
+              <ringGeometry args={[radius * 2.0, radius * 2.3, 128]} />
+              <meshStandardMaterial
+                color="#d4b57d"
+                side={THREE.DoubleSide}
+                transparent
+                opacity={0.6}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
 
-          {/* Cassini Division */}
-          <mesh>
-            <ringGeometry args={[radius * 1.95, radius * 2.0, 128]} />
-            <meshBasicMaterial
-              color="black"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.5}
-            />
-          </mesh>
-        </group>
-      )}
+            {/* Cassini Division */}
+            <mesh>
+              <ringGeometry args={[radius * 1.95, radius * 2.0, 128]} />
+              <meshBasicMaterial
+                color="black"
+                side={THREE.DoubleSide}
+                transparent
+                opacity={0.5}
+              />
+            </mesh>
+          </group>
+        )}
+      </group>
     </>
   );
 };

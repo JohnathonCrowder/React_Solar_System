@@ -7,6 +7,7 @@ import { useStore } from "../../store/store";
 const SolarSystem = () => {
   const groupRef = useRef<THREE.Group>(null);
   const sunGroupRef = useRef<THREE.Group>(null);
+  const { selectedPlanet, setSelectedPlanet } = useStore();
 
   useFrame(() => {
     if (groupRef.current) {
@@ -32,7 +33,7 @@ const SolarSystem = () => {
         {/* Core sun sphere - Clickable */}
         <mesh
           position={[0, 0, 0]}
-          onClick={() => useStore.getState().setSelectedPlanet("Sun")}
+          onClick={() => setSelectedPlanet("Sun")}
           onPointerEnter={() => (document.body.style.cursor = "pointer")}
           onPointerLeave={() => (document.body.style.cursor = "default")}
         >
@@ -119,11 +120,11 @@ const SolarSystem = () => {
           intensity={1}
           distance={300}
           decay={2}
-          color="#FF8F00"
+          color="#blue"
         />
       </group>
 
-      {/* Planets with realistic orbital parameters */}
+      {/* Planets with realistic orbital parameters and selection state */}
       <Planet
         name="Mercury"
         radius={1.5}
@@ -135,6 +136,7 @@ const SolarSystem = () => {
         rotationSpeed={0.01}
         atmosphereColor="#787878"
         initialAngle={0}
+        isSelected={selectedPlanet === "Mercury"}
       />
 
       <Planet
@@ -148,6 +150,7 @@ const SolarSystem = () => {
         rotationSpeed={0.008}
         atmosphereColor="#e39e1c"
         initialAngle={Math.PI * 0.5}
+        isSelected={selectedPlanet === "Venus"}
       />
 
       <Planet
@@ -161,6 +164,7 @@ const SolarSystem = () => {
         rotationSpeed={0.01}
         atmosphereColor="#6ab7ff"
         initialAngle={Math.PI}
+        isSelected={selectedPlanet === "Earth"}
       />
 
       <Planet
@@ -174,6 +178,7 @@ const SolarSystem = () => {
         rotationSpeed={0.009}
         atmosphereColor="#c1440e"
         initialAngle={Math.PI * 1.5}
+        isSelected={selectedPlanet === "Mars"}
       />
 
       <Planet
@@ -187,6 +192,7 @@ const SolarSystem = () => {
         rotationSpeed={0.004}
         atmosphereColor="#e3ddd1"
         initialAngle={Math.PI * 0.3}
+        isSelected={selectedPlanet === "Jupiter"}
       />
 
       <Planet
@@ -201,6 +207,7 @@ const SolarSystem = () => {
         hasRings={true}
         atmosphereColor="#ead6b8"
         initialAngle={Math.PI * 0.8}
+        isSelected={selectedPlanet === "Saturn"}
       />
 
       <Planet
@@ -214,6 +221,7 @@ const SolarSystem = () => {
         rotationSpeed={0.003}
         atmosphereColor="#d1e7e7"
         initialAngle={Math.PI * 1.2}
+        isSelected={selectedPlanet === "Uranus"}
       />
 
       <Planet
@@ -227,6 +235,7 @@ const SolarSystem = () => {
         rotationSpeed={0.0032}
         atmosphereColor="#445bad"
         initialAngle={Math.PI * 1.7}
+        isSelected={selectedPlanet === "Neptune"}
       />
 
       <Planet
@@ -240,6 +249,7 @@ const SolarSystem = () => {
         rotationSpeed={0.0022}
         atmosphereColor="#968570"
         initialAngle={Math.PI * 0.1}
+        isSelected={selectedPlanet === "Pluto"}
       />
 
       {/* Scene lighting */}
