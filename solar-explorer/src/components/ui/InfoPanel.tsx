@@ -110,16 +110,17 @@ const celestialInfo = {
 };
 
 const blackHoleInfo = {
-  type: "Supermassive Black Hole",
-  mass: "Millions to billions of solar masses",
-  eventHorizonRadius: "Varies with mass, can be larger than our solar system",
-  gravitationalPull: "So strong that not even light can escape",
-  singularity: "Point of infinite density at the center",
-  accretionDisk: "Superheated matter spiraling into the black hole",
-  timeEffect: "Time slows down near the event horizon",
-  hawkingRadiation:
+  Type: "Supermassive Black Hole",
+  Mass: "Millions to billions of solar masses",
+  "Event Horizon Radius":
+    "Varies with mass, can be larger than our solar system",
+  "Gravitational Pull": "So strong that not even light can escape",
+  Singularity: "Point of infinite density at the center",
+  "Accretion Disk": "Superheated matter spiraling into the black hole",
+  "Time Effect": "Time slows down near the event horizon",
+  "Hawking Radiation":
     "Theoretical quantum effect that causes black holes to slowly evaporate",
-  funFact:
+  "Fun Fact":
     "If our Sun was replaced by a black hole of the same mass, Earth's orbit wouldn't change",
 };
 
