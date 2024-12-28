@@ -109,12 +109,33 @@ const celestialInfo = {
   },
 };
 
+const blackHoleInfo = {
+  type: "Supermassive Black Hole",
+  mass: "Millions to billions of solar masses",
+  eventHorizonRadius: "Varies with mass, can be larger than our solar system",
+  gravitationalPull: "So strong that not even light can escape",
+  singularity: "Point of infinite density at the center",
+  accretionDisk: "Superheated matter spiraling into the black hole",
+  timeEffect: "Time slows down near the event horizon",
+  hawkingRadiation:
+    "Theoretical quantum effect that causes black holes to slowly evaporate",
+  funFact:
+    "If our Sun was replaced by a black hole of the same mass, Earth's orbit wouldn't change",
+};
+
 const InfoPanel = () => {
-  const { selectedPlanet } = useStore();
+  const { selectedPlanet, showBlackHole } = useStore();
+
+  const shouldShowInfo = selectedPlanet || showBlackHole;
+  const title = showBlackHole ? "Black Hole" : selectedPlanet;
+  const info = showBlackHole
+    ? blackHoleInfo
+    : selectedPlanet &&
+      celestialInfo[selectedPlanet as keyof typeof celestialInfo];
 
   return (
     <AnimatePresence>
-      {selectedPlanet && (
+      {shouldShowInfo && info && (
         <motion.div
           initial={{ opacity: 0, x: -100 }}
           animate={{ opacity: 1, x: 0 }}
@@ -122,9 +143,7 @@ const InfoPanel = () => {
           className="absolute top-4 left-4 bg-black/50 backdrop-blur-md rounded-lg p-6 max-w-md"
         >
           <div className="flex justify-between items-start">
-            <h2 className="text-3xl font-bold mb-4 text-white">
-              {selectedPlanet}
-            </h2>
+            <h2 className="text-3xl font-bold mb-4 text-white">{title}</h2>
             <button
               className="text-white/60 hover:text-white"
               onClick={() => useStore.getState().setSelectedPlanet(null)}
@@ -145,20 +164,16 @@ const InfoPanel = () => {
             </button>
           </div>
 
-          {celestialInfo[selectedPlanet as keyof typeof celestialInfo] && (
-            <div className="space-y-4">
-              {Object.entries(
-                celestialInfo[selectedPlanet as keyof typeof celestialInfo]
-              ).map(([key, value]) => (
-                <div key={key} className="border-b border-white/10 pb-2">
-                  <span className="text-white/60 text-sm uppercase tracking-wider">
-                    {key}
-                  </span>
-                  <div className="text-white mt-1">{value}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="space-y-4">
+            {Object.entries(info).map(([key, value]) => (
+              <div key={key} className="border-b border-white/10 pb-2">
+                <span className="text-white/60 text-sm uppercase tracking-wider">
+                  {key}
+                </span>
+                <div className="text-white mt-1">{value}</div>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-6 text-center">
             <button
