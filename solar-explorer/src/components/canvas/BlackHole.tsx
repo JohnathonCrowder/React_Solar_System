@@ -1,14 +1,12 @@
-import { useRef, useMemo, useState, useEffect } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   Sphere,
   useTexture,
-  Html,
   useDepthBuffer,
   MeshTransmissionMaterial,
 } from "@react-three/drei";
 import * as THREE from "three";
-import { useSpring, animated } from "@react-spring/three";
 
 // Advanced shader for extreme gravitational lensing
 const eventHorizonShader = {
@@ -96,7 +94,6 @@ const AccretionDisk = () => {
     const colors = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount; i++) {
-      // Start particles only outside the event horizon
       const radius = Math.random() * 5 + 8;
       const theta = Math.random() * Math.PI * 2;
       const height = (Math.random() - 0.5) * 0.5 * Math.exp(-radius * 0.1);
@@ -105,17 +102,15 @@ const AccretionDisk = () => {
       positions[i * 3 + 1] = height;
       positions[i * 3 + 2] = Math.sin(theta) * radius;
 
-      // Orbital velocity
       const speed = Math.sqrt(1 / radius);
       velocities[i * 3] = -Math.sin(theta) * speed;
       velocities[i * 3 + 1] = 0;
       velocities[i * 3 + 2] = Math.cos(theta) * speed;
 
-      // Temperature gradient
       const temp = Math.exp(-radius * 0.1);
-      colors[i * 3] = Math.min(1, temp * 2); // Red
-      colors[i * 3 + 1] = temp * 0.5; // Green
-      colors[i * 3 + 2] = temp; // Blue
+      colors[i * 3] = Math.min(1, temp * 2);
+      colors[i * 3 + 1] = temp * 0.5;
+      colors[i * 3 + 2] = temp;
     }
 
     return [positions, velocities, colors];
@@ -135,8 +130,7 @@ const AccretionDisk = () => {
         const radius = Math.sqrt(x * x + z * z);
 
         if (radius < 6) {
-          // Reset particle to outer position
-          const newRadius = Math.random() * 5 + 13; // Start between 13 and 18
+          const newRadius = Math.random() * 5 + 13;
           const theta = Math.random() * Math.PI * 2;
           const height =
             (Math.random() - 0.5) * 0.5 * Math.exp(-newRadius * 0.1);
@@ -145,18 +139,15 @@ const AccretionDisk = () => {
           positions[i3 + 1] = height;
           positions[i3 + 2] = Math.sin(theta) * newRadius;
         } else {
-          // Update position
           const theta = Math.atan2(z, x);
           const speed = Math.sqrt(1 / radius) * 0.3;
 
-          // Spiral inward
           const newRadius = radius - 0.01;
           const newTheta = theta + speed;
 
           positions[i3] = Math.cos(newTheta) * newRadius;
           positions[i3 + 2] = Math.sin(newTheta) * newRadius;
 
-          // Slightly adjust height
           positions[i3 + 1] *= 0.99;
         }
       }
@@ -312,7 +303,6 @@ const BlackHole = () => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { camera, size } = useThree();
   const depthBuffer = useDepthBuffer({ frames: 1 });
-  const [hovered, setHovered] = useState(false);
 
   const [spaceTexture, noiseTexture] = useTexture([
     "/textures/deep_space_hd.jpg",
@@ -353,18 +343,8 @@ const BlackHole = () => {
     }
   });
 
-  const hoverSpring = useSpring({
-    scale: hovered ? 1.1 : 1,
-    config: { tension: 300, friction: 10 },
-  });
-
   return (
-    <animated.group
-      ref={groupRef}
-      scale={hoverSpring.scale}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-    >
+    <group ref={groupRef}>
       {/* Event Horizon */}
       <Sphere args={[5, 128, 128]}>
         <shaderMaterial ref={materialRef} args={[eventHorizonShader]} />
@@ -388,7 +368,7 @@ const BlackHole = () => {
         decay={2}
         color="#ff4400"
       />
-    </animated.group>
+    </group>
   );
 };
 
