@@ -1,5 +1,3 @@
-// src/App.tsx
-
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense, useEffect } from "react";
@@ -23,7 +21,7 @@ function App() {
   const { showBlackHole } = useStore();
 
   const cameraSpring = useSpring({
-    position: showBlackHole ? [0, 0, 50] : [0, 20, 100],
+    position: showBlackHole ? [0, 0, 200] : [0, 20, 400],
     config: { mass: 1, tension: 280, friction: 60 },
   });
 
@@ -54,20 +52,22 @@ function App() {
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={5}
-            maxDistance={500}
+            minDistance={50}
+            maxDistance={1000}
           />
           <ambientLight intensity={0.1} />
         </Suspense>
-        <EffectComposer>
-          <Bloom
-            intensity={1.5}
-            luminanceThreshold={0.5}
-            luminanceSmoothing={0.9}
-          />
-          <ChromaticAberration offset={[0.002, 0.002]} />
-          <Noise opacity={0.02} />
-        </EffectComposer>
+        {showBlackHole && (
+          <EffectComposer>
+            <Bloom
+              intensity={1.5}
+              luminanceThreshold={0.5}
+              luminanceSmoothing={0.9}
+            />
+            <ChromaticAberration offset={[0.002, 0.002]} />
+            <Noise opacity={0.02} />
+          </EffectComposer>
+        )}
       </Canvas>
       <Controls />
       <InfoPanel />
