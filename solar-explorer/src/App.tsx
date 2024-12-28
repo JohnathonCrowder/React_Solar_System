@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
@@ -6,6 +5,8 @@ import SolarSystem from "./components/canvas/SolarSystem";
 import Stars from "./components/canvas/Stars";
 import Controls from "./components/ui/Controls";
 import InfoPanel from "./components/ui/InfoPanel";
+import NavigationArrows from "./components/ui/NavigationArrows";
+import KeyboardNavigation from "./components/ui/KeyboardNavigation";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
       </Canvas>
       <Controls />
       <InfoPanel />
+      <NavigationArrows />
+      <KeyboardNavigation />
     </div>
   );
 }
