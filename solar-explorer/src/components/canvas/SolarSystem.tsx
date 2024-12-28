@@ -125,7 +125,7 @@ const SolarSystem = () => {
               intensity={1}
               distance={300}
               decay={2}
-              color="#blue"
+              color="#0000ff"
             />
           </group>
 
@@ -272,7 +272,7 @@ const SolarSystem = () => {
         intensity={0.2}
         distance={300}
         decay={2}
-        color="#blue"
+        color="#0000ff"
       />
     </group>
   );

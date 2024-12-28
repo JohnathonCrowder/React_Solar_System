@@ -3,7 +3,6 @@ import { useFrame, useThree } from "@react-three/fiber";
 import {
   Sphere,
   useTexture,
-  useDepthBuffer,
   MeshTransmissionMaterial,
 } from "@react-three/drei";
 import * as THREE from "three";
@@ -88,9 +87,8 @@ const AccretionDisk = () => {
   const diskRef = useRef<THREE.Points>(null);
   const particlesCount = 100000;
 
-  const [positions, velocities, colors] = useMemo(() => {
+  const [positions, colors] = useMemo(() => {
     const positions = new Float32Array(particlesCount * 3);
-    const velocities = new Float32Array(particlesCount * 3);
     const colors = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount; i++) {
@@ -102,18 +100,13 @@ const AccretionDisk = () => {
       positions[i * 3 + 1] = height;
       positions[i * 3 + 2] = Math.sin(theta) * radius;
 
-      const speed = Math.sqrt(1 / radius);
-      velocities[i * 3] = -Math.sin(theta) * speed;
-      velocities[i * 3 + 1] = 0;
-      velocities[i * 3 + 2] = Math.cos(theta) * speed;
-
       const temp = Math.exp(-radius * 0.1);
       colors[i * 3] = Math.min(1, temp * 2);
       colors[i * 3 + 1] = temp * 0.5;
       colors[i * 3 + 2] = temp;
     }
 
-    return [positions, velocities, colors];
+    return [positions, colors];
   }, []);
 
   useFrame(() => {
@@ -124,7 +117,6 @@ const AccretionDisk = () => {
       for (let i = 0; i < particlesCount; i++) {
         const i3 = i * 3;
         const x = positions[i3];
-        const y = positions[i3 + 1];
         const z = positions[i3 + 2];
 
         const radius = Math.sqrt(x * x + z * z);
@@ -188,9 +180,8 @@ const ParticleSystem = () => {
   const particlesRef = useRef<THREE.Points>(null);
   const particleCount = 20000;
 
-  const [positions, velocities] = useMemo(() => {
+  const [positions] = useMemo(() => {
     const positions = new Float32Array(particleCount * 3);
-    const velocities = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount; i++) {
       const radius = Math.random() * 30 + 15;
@@ -200,14 +191,9 @@ const ParticleSystem = () => {
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = radius * Math.cos(phi);
-
-      const orbitSpeed = 0.05 / Math.sqrt(radius);
-      velocities[i * 3] = -Math.sin(theta) * orbitSpeed;
-      velocities[i * 3 + 1] = 0;
-      velocities[i * 3 + 2] = Math.cos(theta) * orbitSpeed;
     }
 
-    return [positions, velocities];
+    return [positions];
   }, []);
 
   useFrame(() => {
@@ -231,24 +217,15 @@ const ParticleSystem = () => {
           positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
           positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
           positions[i3 + 2] = radius * Math.cos(phi);
-
-          const orbitSpeed = 0.05 / Math.sqrt(radius);
-          velocities[i3] = -Math.sin(theta) * orbitSpeed;
-          velocities[i3 + 1] = 0;
-          velocities[i3 + 2] = Math.cos(theta) * orbitSpeed;
         } else {
           const acceleration = 0.1 / (distance * distance);
           const dirX = -x / distance;
           const dirY = -y / distance;
           const dirZ = -z / distance;
 
-          velocities[i3] += dirX * acceleration;
-          velocities[i3 + 1] += dirY * acceleration;
-          velocities[i3 + 2] += dirZ * acceleration;
-
-          positions[i3] += velocities[i3];
-          positions[i3 + 1] += velocities[i3 + 1];
-          positions[i3 + 2] += velocities[i3 + 2];
+          positions[i3] += dirX * acceleration;
+          positions[i3 + 1] += dirY * acceleration;
+          positions[i3 + 2] += dirZ * acceleration;
         }
       }
 
@@ -302,12 +279,8 @@ const BlackHole = () => {
   const groupRef = useRef<THREE.Group>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { camera, size } = useThree();
-  const depthBuffer = useDepthBuffer({ frames: 1 });
 
-  const [spaceTexture, noiseTexture] = useTexture([
-    "/textures/deep_space_hd.jpg",
-    "/textures/noise.png",
-  ]);
+  const spaceTexture = useTexture("/textures/deep_space_hd.jpg");
 
   useEffect(() => {
     if (materialRef.current) {
