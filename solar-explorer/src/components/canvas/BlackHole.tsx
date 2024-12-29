@@ -1,10 +1,6 @@
 import { useRef, useMemo } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import {
-  Sphere,
-  useTexture,
-  MeshTransmissionMaterial,
-} from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Sphere, MeshTransmissionMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 // New Black Hole Core Component
@@ -186,9 +182,8 @@ const ParticleSystem = () => {
     return [positions];
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (particlesRef.current) {
-      const time = clock.getElapsedTime();
       const positions = particlesRef.current.geometry.attributes.position
         .array as Float32Array;
 

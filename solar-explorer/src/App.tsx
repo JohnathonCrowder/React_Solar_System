@@ -7,7 +7,7 @@ import {
   ChromaticAberration,
   Noise,
 } from "@react-three/postprocessing";
-import { useSpring, config } from "@react-spring/three";
+import { useSpring } from "@react-spring/three";
 import * as THREE from "three";
 import SolarSystem from "./components/canvas/SolarSystem";
 import BlackHole from "./components/canvas/BlackHole";
