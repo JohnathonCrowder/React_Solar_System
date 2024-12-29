@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   Sphere,
@@ -7,82 +7,71 @@ import {
 } from "@react-three/drei";
 import * as THREE from "three";
 
-// Advanced shader for extreme gravitational lensing
-const eventHorizonShader = {
-  uniforms: {
-    time: { value: 0 },
-    backgroundTexture: { value: null },
-    resolution: { value: new THREE.Vector2() },
-    cameraPosition: { value: new THREE.Vector3() },
-  },
-  vertexShader: `
-    varying vec3 vWorldPosition;
-    varying vec2 vUv;
-    
-    void main() {
-      vUv = uv;
-      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-      vWorldPosition = worldPosition.xyz;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+// New Black Hole Core Component
+const BlackHoleCore = () => {
+  const coreRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (coreRef.current) {
+      const time = clock.getElapsedTime();
+      coreRef.current.rotation.x = time * 0.2;
+      coreRef.current.rotation.y = time * 0.3;
+
+      // Create a subtle pulsing effect
+      const scale = 0.5 + Math.sin(time * 2) * 0.05;
+      coreRef.current.scale.set(scale, scale, scale);
     }
-  `,
-  fragmentShader: `
-    uniform float time;
-    uniform sampler2D backgroundTexture;
-    uniform vec2 resolution;
-    uniform vec3 cameraPosition;
-    
-    varying vec3 vWorldPosition;
-    varying vec2 vUv;
-    
-    #define PI 3.14159265359
-    
-    float schwarzschildRadius = 1.0;
-    
-    vec2 raytrace(vec3 ro, vec3 rd) {
-      float r = length(ro);
-      float b = dot(ro, rd);
-      float det = b * b - r * r + schwarzschildRadius * schwarzschildRadius;
-      
-      if (det < 0.0) return vec2(-1.0);
-      
-      float t1 = -b - sqrt(det);
-      float t2 = -b + sqrt(det);
-      
-      return vec2(t1, t2);
-    }
-    
-    void main() {
-      vec3 worldPos = normalize(vWorldPosition);
-      vec3 viewDir = normalize(worldPos - cameraPosition);
-      
-      vec2 intersection = raytrace(cameraPosition, viewDir);
-      
-      if (intersection.x < 0.0) {
-        vec3 color = vec3(0.0);
-        float edge = pow(1.0 - abs(dot(viewDir, vec3(0.0, 1.0, 0.0))), 5.0);
-        color += vec3(0.0, 0.02, 0.05) * edge;
-        
-        gl_FragColor = vec4(color, 1.0);
-      } else {
-        float bendStrength = schwarzschildRadius / length(cameraPosition);
-        vec3 bentDir = normalize(mix(viewDir, normalize(-cameraPosition), bendStrength));
-        
-        vec2 bentUv = bentDir.xy * 0.5 + 0.5;
-        vec3 color = texture2D(backgroundTexture, bentUv).rgb;
-        
-        float redshift = 1.0 - (bendStrength * 0.5);
-        color *= redshift;
-        
-        float horizonGlow = pow(bendStrength, 4.0);
-        color += vec3(0.1, 0.0, 0.2) * horizonGlow;
-        
-        gl_FragColor = vec4(color, 1.0);
-      }
-    }
-  `,
+  });
+
+  return (
+    <mesh ref={coreRef}>
+      <sphereGeometry args={[0.5, 32, 32]} />
+      <shaderMaterial
+        uniforms={{
+          time: { value: 0 },
+        }}
+        vertexShader={`
+          varying vec2 vUv;
+          uniform float time;
+          
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform float time;
+          varying vec2 vUv;
+          
+          void main() {
+            vec2 center = vec2(0.5, 0.5);
+            float dist = distance(vUv, center);
+            
+            // Create a swirling energy pattern
+            float angle = atan(vUv.y - center.y, vUv.x - center.x);
+            float swirl = sin(dist * 20.0 + time * 2.0) * 0.5 + 0.5;
+            
+            vec3 color = mix(
+              vec3(1.0, 0.0, 0.0),  // Deep red
+              vec3(0.0, 0.0, 0.0),  // Black
+              swirl
+            );
+            
+            // Add a glowing effect
+            float glow = 1.0 - smoothstep(0.0, 0.5, dist);
+            color += vec3(0.2, 0.0, 0.0) * glow;
+            
+            gl_FragColor = vec4(color, glow);
+          }
+        `}
+        transparent
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
 };
 
+// Existing Accretion Disk Component
 const AccretionDisk = () => {
   const diskRef = useRef<THREE.Points>(null);
   const particlesCount = 100000;
@@ -176,6 +165,7 @@ const AccretionDisk = () => {
   );
 };
 
+// Existing Particle System Component
 const ParticleSystem = () => {
   const particlesRef = useRef<THREE.Points>(null);
   const particleCount = 20000;
@@ -196,8 +186,9 @@ const ParticleSystem = () => {
     return [positions];
   }, []);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (particlesRef.current) {
+      const time = clock.getElapsedTime();
       const positions = particlesRef.current.geometry.attributes.position
         .array as Float32Array;
 
@@ -209,23 +200,33 @@ const ParticleSystem = () => {
 
         const distance = Math.sqrt(x * x + y * y + z * z);
 
-        if (distance < 6) {
-          const radius = Math.random() * 30 + 15;
+        if (distance < 3) {
+          // Reset particles that get too close to the center
+          const newRadius = Math.random() * 30 + 25; // Spawn further out
           const theta = Math.random() * Math.PI * 2;
           const phi = Math.acos(Math.random() * 2 - 1);
 
-          positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-          positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-          positions[i3 + 2] = radius * Math.cos(phi);
+          positions[i3] = newRadius * Math.sin(phi) * Math.cos(theta);
+          positions[i3 + 1] = newRadius * Math.sin(phi) * Math.sin(theta);
+          positions[i3 + 2] = newRadius * Math.cos(phi);
         } else {
-          const acceleration = 0.1 / (distance * distance);
+          // Enhanced gravitational pull
+          const pullStrength = 0.5 / (distance * 0.5); // Adjusted pull strength
+          const spin = 0.002; // Add slight spin effect
+
+          // Calculate normalized direction to center
           const dirX = -x / distance;
           const dirY = -y / distance;
           const dirZ = -z / distance;
 
-          positions[i3] += dirX * acceleration;
-          positions[i3 + 1] += dirY * acceleration;
-          positions[i3 + 2] += dirZ * acceleration;
+          // Add spiral motion
+          const spiralX = z * spin;
+          const spiralZ = -x * spin;
+
+          // Update positions with combined pull and spiral
+          positions[i3] += dirX * pullStrength + spiralX;
+          positions[i3 + 1] += dirY * pullStrength;
+          positions[i3 + 2] += dirZ * pullStrength + spiralZ;
         }
       }
 
@@ -255,6 +256,7 @@ const ParticleSystem = () => {
   );
 };
 
+// Existing Space Distortion Component
 const SpaceDistortion = () => {
   return (
     <Sphere args={[20, 64, 64]}>
@@ -275,53 +277,14 @@ const SpaceDistortion = () => {
   );
 };
 
+// Main Black Hole Component
 const BlackHole = () => {
   const groupRef = useRef<THREE.Group>(null);
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const { camera, size } = useThree();
-
-  const spaceTexture = useTexture("/textures/deep_space_hd.jpg");
-
-  useEffect(() => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.backgroundTexture.value = spaceTexture;
-      materialRef.current.uniforms.resolution.value = new THREE.Vector2(
-        size.width,
-        size.height
-      );
-    }
-
-    const listener = new THREE.AudioListener();
-    camera.add(listener);
-    const sound = new THREE.Audio(listener);
-    const audioLoader = new THREE.AudioLoader();
-
-    audioLoader.load("/sounds/black_hole_ambient.mp3", (buffer) => {
-      sound.setBuffer(buffer);
-      sound.setLoop(true);
-      sound.setVolume(0.5);
-      sound.play();
-    });
-
-    return () => {
-      sound.stop();
-      camera.remove(listener);
-    };
-  }, [camera, spaceTexture, size]);
-
-  useFrame(({ clock, camera }) => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.time.value = clock.getElapsedTime();
-      materialRef.current.uniforms.cameraPosition.value = camera.position;
-    }
-  });
 
   return (
     <group ref={groupRef}>
-      {/* Event Horizon */}
-      <Sphere args={[5, 128, 128]}>
-        <shaderMaterial ref={materialRef} args={[eventHorizonShader]} />
-      </Sphere>
+      {/* Black Hole Core */}
+      <BlackHoleCore />
 
       {/* Accretion Disk */}
       <AccretionDisk />

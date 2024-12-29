@@ -33,9 +33,9 @@ function App() {
 
   const { position } = useSpring({
     position: showBlackHole
-      ? ([0, 0, 200] as [number, number, number])
+      ? ([0, 0, 50] as [number, number, number])
       : ([0, 20, 400] as [number, number, number]),
-    config: config.molasses,
+    config: { mass: 1, tension: 170, friction: 26 },
   });
 
   useEffect(() => {
@@ -60,11 +60,13 @@ function App() {
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={50}
-            maxDistance={1000}
-            zoomSpeed={0.5}
+            minDistance={showBlackHole ? 1 : 50}
+            maxDistance={showBlackHole ? 500 : 1000}
+            zoomSpeed={showBlackHole ? 0.3 : 0.5}
             panSpeed={0.5}
-            rotateSpeed={0.5}
+            rotateSpeed={showBlackHole ? 0.3 : 0.5}
+            minPolarAngle={Math.PI / 4}
+            maxPolarAngle={Math.PI - Math.PI / 4}
           />
           <ambientLight intensity={0.1} />
 
