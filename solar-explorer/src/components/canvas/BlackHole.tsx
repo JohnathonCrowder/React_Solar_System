@@ -2,6 +2,7 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sphere, MeshTransmissionMaterial } from "@react-three/drei";
 import * as THREE from "three";
+import PulsarBeams from "./PulsarBeams";
 
 // New Black Hole Core Component
 const BlackHoleCore = () => {
@@ -289,6 +290,8 @@ const BlackHole = () => {
 
       {/* Space Distortion Effect */}
       <SpaceDistortion />
+
+      <PulsarBeams />
 
       {/* Light Effects */}
       <pointLight position={[0, 0, 0]} intensity={2} distance={100} decay={2} />
