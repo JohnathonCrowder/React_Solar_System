@@ -125,13 +125,24 @@ const blackHoleInfo = {
 };
 
 const InfoPanel = () => {
-  const { selectedPlanet, showBlackHole, setSelectedPlanet } = useStore();
+  const {
+    selectedPlanet,
+    showBlackHole,
+    showBlackHoleInfo,
+    setSelectedPlanet,
+    setShowBlackHoleInfo,
+  } = useStore();
 
   const handleClose = () => {
-    setSelectedPlanet(null);
+    if (showBlackHole) {
+      setShowBlackHoleInfo(false);
+    } else {
+      setSelectedPlanet(null);
+    }
   };
 
-  const shouldShowInfo = selectedPlanet || showBlackHole;
+  const shouldShowInfo =
+    (selectedPlanet && !showBlackHole) || (showBlackHole && showBlackHoleInfo);
   const title = showBlackHole ? "Black Hole" : selectedPlanet;
   const info = showBlackHole
     ? blackHoleInfo

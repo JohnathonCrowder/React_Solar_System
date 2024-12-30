@@ -1,7 +1,13 @@
 import { useStore } from "../../store/store";
 
 const Controls = () => {
-  const { selectedPlanet, showBlackHole, toggleBlackHole } = useStore();
+  const {
+    selectedPlanet,
+    showBlackHole,
+    showBlackHoleInfo,
+    toggleBlackHole,
+    setShowBlackHoleInfo,
+  } = useStore();
 
   return (
     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent">
@@ -15,6 +21,14 @@ const Controls = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          {showBlackHole && !showBlackHoleInfo && (
+            <button
+              className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              onClick={() => setShowBlackHoleInfo(true)}
+            >
+              Show Black Hole Info
+            </button>
+          )}
           <button
             className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
             onClick={toggleBlackHole}
