@@ -14,8 +14,6 @@ import BlackHole from "./components/canvas/BlackHole";
 import Stars from "./components/canvas/Stars";
 import Controls from "./components/ui/Controls";
 import InfoPanel from "./components/ui/InfoPanel";
-import NavigationArrows from "./components/ui/NavigationArrows";
-import KeyboardNavigation from "./components/ui/KeyboardNavigation";
 import { useStore } from "./store/store";
 
 function Camera({ position }: { position: [number, number, number] }) {
@@ -90,8 +88,6 @@ function App() {
       </Canvas>
       <Controls />
       <InfoPanel />
-      <NavigationArrows />
-      <KeyboardNavigation />
 
       {/* Optional loading indicator */}
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
