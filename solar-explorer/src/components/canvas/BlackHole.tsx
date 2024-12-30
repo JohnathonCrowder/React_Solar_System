@@ -18,8 +18,15 @@ const BlackHole = () => {
       {/* Keep singularity smaller than event horizon */}
       <Singularity size={2.0} />
 
-      {/* Adjust AccretionDisk to be proportional to larger event horizon */}
-      <AccretionDisk particlesCount={100000} />
+      {/* Adjust AccretionDisk to be proportional to event horizon */}
+      <AccretionDisk
+        innerRadius={5.0} // Just outside event horizon
+        outerRadius={27.0} // Extended disk
+        particleCount={250000} // High particle count for better detail
+        thickness={5.6} // Reasonable disk thickness
+        rotationSpeed={0.9} // Moderate rotation speed
+        temperature={1.2} // Slightly hot for vibrant colors
+      />
 
       {/* Adjust ParticleSystem ranges for larger scale */}
       <ParticleSystem particleCount={20000} minRadius={20} maxRadius={40} />

@@ -15,7 +15,7 @@ interface GravitationalLensProps {
 }
 
 const GravitationalLens: React.FC<GravitationalLensProps> = ({
-  radius = 20,
+  radius = 500,
   samples = 16,
   thickness = 3,
   chromaticAberration = 1,
@@ -28,7 +28,7 @@ const GravitationalLens: React.FC<GravitationalLensProps> = ({
   iridescenceThicknessRange = [0, 1400],
 }) => {
   return (
-    <Sphere args={[radius, 64, 64]}>
+    <Sphere args={[radius, 604, 604]}>
       <MeshTransmissionMaterial
         backside
         samples={samples}
