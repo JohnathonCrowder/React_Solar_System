@@ -291,7 +291,24 @@ const BlackHole = () => {
       {/* Space Distortion Effect */}
       <SpaceDistortion />
 
-      <PulsarBeams />
+      <group>
+        <PulsarBeams
+          jetLength={180}
+          jetRadius={1.5}
+          particleCount={8000}
+          rotationSpeed={0.05} // Faster rotation for typical pulsar
+          startColor="#00ffff" // Cyan core
+          endColor="#4169E1" // Fading to royal blue
+        />
+        <PulsarBeams
+          jetLength={180}
+          jetRadius={1.5}
+          particleCount={8000}
+          rotationSpeed={1}
+          startColor="#00ffff"
+          endColor="#4169E1"
+        />
+      </group>
 
       {/* Light Effects */}
       <pointLight position={[0, 0, 0]} intensity={2} distance={100} decay={2} />

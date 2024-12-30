@@ -7,6 +7,8 @@ interface PulsarBeamsProps {
   jetRadius?: number;
   particleCount?: number;
   rotationSpeed?: number;
+  startColor?: string;
+  endColor?: string;
 }
 
 const PulsarBeams: React.FC<PulsarBeamsProps> = ({
@@ -14,6 +16,8 @@ const PulsarBeams: React.FC<PulsarBeamsProps> = ({
   jetRadius = 2,
   particleCount = 5000,
   rotationSpeed = 0.001,
+  startColor = "#4444ff",
+  endColor = "#ffffff",
 }) => {
   const jetRef = useRef<THREE.Points>(null);
 
@@ -22,6 +26,9 @@ const PulsarBeams: React.FC<PulsarBeamsProps> = ({
     const velocities = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);
+
+    const startColorObj = new THREE.Color(startColor);
+    const endColorObj = new THREE.Color(endColor);
 
     for (let i = 0; i < particleCount; i++) {
       // Initialize two jets (one up, one down)
@@ -46,18 +53,23 @@ const PulsarBeams: React.FC<PulsarBeamsProps> = ({
         : -(Math.random() * 0.5 + 0.5);
       velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
 
-      // Color gradient from blue to white
+      // Color gradient based on distance from center
       const intensity = 1 - Math.abs(y) / jetLength;
-      colors[i * 3] = 0.5 + intensity * 0.5; // R
-      colors[i * 3 + 1] = 0.7 + intensity * 0.3; // G
-      colors[i * 3 + 2] = 1; // B
+      const color = new THREE.Color().lerpColors(
+        startColorObj,
+        endColorObj,
+        intensity
+      );
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
 
       // Varied particle sizes
       sizes[i] = Math.random() * 0.5 + 0.1;
     }
 
     return [positions, velocities, colors, sizes];
-  }, [jetLength, jetRadius, particleCount]);
+  }, [jetLength, jetRadius, particleCount, startColor, endColor]);
 
   useFrame(({ clock }) => {
     if (jetRef.current) {
@@ -66,6 +78,8 @@ const PulsarBeams: React.FC<PulsarBeamsProps> = ({
         .array as Float32Array;
       const colors = jetRef.current.geometry.attributes.color
         .array as Float32Array;
+      const startColorObj = new THREE.Color(startColor);
+      const endColorObj = new THREE.Color(endColor);
 
       for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
@@ -87,9 +101,14 @@ const PulsarBeams: React.FC<PulsarBeamsProps> = ({
         // Update colors for pulsing effect
         const intensity = 1 - Math.abs(positions[i3 + 1]) / jetLength;
         const pulse = Math.sin(time * 5) * 0.1 + 0.9;
-        colors[i3] = (0.5 + intensity * 0.5) * pulse; // R
-        colors[i3 + 1] = (0.7 + intensity * 0.3) * pulse; // G
-        colors[i3 + 2] = 1 * pulse; // B
+        const color = new THREE.Color().lerpColors(
+          startColorObj,
+          endColorObj,
+          intensity * pulse
+        );
+        colors[i3] = color.r;
+        colors[i3 + 1] = color.g;
+        colors[i3 + 2] = color.b;
       }
 
       jetRef.current.geometry.attributes.position.needsUpdate = true;
