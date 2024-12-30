@@ -156,16 +156,20 @@ const InfoPanel = () => {
           initial={{ opacity: 0, x: -100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
-          className="absolute top-4 left-4 bg-black/50 backdrop-blur-md rounded-lg p-6 max-w-md"
+          transition={{ duration: 0.3 }}
+          className="absolute top-6 left-6 w-80 bg-black/40 backdrop-blur-md rounded-2xl 
+                         border border-white/10 overflow-hidden"
         >
-          <div className="flex justify-between items-start">
-            <h2 className="text-3xl font-bold mb-4 text-white">{title}</h2>
+          {/* Header */}
+          <div className="relative px-6 py-4 border-b border-white/10">
+            <h2 className="text-xl text-white/90 font-light">{title}</h2>
             <button
-              className="text-white/60 hover:text-white"
               onClick={handleClose}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg
+                             text-white/40 hover:text-white/90 hover:bg-white/10 transition-all duration-300"
             >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -173,31 +177,25 @@ const InfoPanel = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
             </button>
           </div>
 
-          <div className="space-y-4">
+          {/* Content - Added custom scrollbar styling */}
+          <div
+            className="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto
+                              scrollbar-thin scrollbar-track-white/10 scrollbar-thumb-white/20
+                              hover:scrollbar-thumb-white/30"
+          >
             {Object.entries(info).map(([key, value]) => (
-              <div key={key} className="border-b border-white/10 pb-2">
-                <span className="text-white/60 text-sm uppercase tracking-wider">
-                  {key}
-                </span>
-                <div className="text-white mt-1">{value}</div>
+              <div key={key}>
+                <div className="text-white/50 text-sm mb-1">{key}</div>
+                <div className="text-white/90">{value}</div>
               </div>
             ))}
-          </div>
-
-          <div className="mt-6 text-center">
-            <button
-              className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm"
-              onClick={handleClose}
-            >
-              Close
-            </button>
           </div>
         </motion.div>
       )}
